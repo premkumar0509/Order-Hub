@@ -1,0 +1,10 @@
+input[type="text"]:hover,
+li:hover {
+  transform: scale(1.05); /* Zoom in a bit */
+  transition: transform 0.3s ease; /* Smooth transition effect */
+  z-index: 10; /* Ensure they appear above other elements */
+}
+
+li {
+  overflow: hidden; /* Prevents content from spilling out */
+}

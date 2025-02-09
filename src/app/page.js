@@ -87,7 +87,9 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <p>Loading products...</p>
+          <div className="flex items-center justify-center min-h-screen">
+            <p className="text-xl font-semibold">Loading products...</p>
+          </div>
         ) : error ? (
           <p className="text-red-500">{error}</p> // Display error message
         ) : (
@@ -95,23 +97,28 @@ export default function Home() {
             {filteredProducts.map((product) => (
               <div
                 key={product._id}
-                className="border p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105"
+                className="flex flex-col justify-between border p-4 rounded-lg shadow-lg"
               >
-                {product.imageUrl ? (
-                  <Image
-                    className="object-cover rounded-lg"
-                    src={product.imageUrl}
-                    alt={product.name}
-                    width={300}
-                    height={200}
-                  />
-                ) : (
-                  <p>Image not available</p>
-                )}
-
-                <h2 className="text-lg font-medium mt-4">{product.name}</h2>
-                <p className="text-sm text-gray-500">{product.description}</p>
-                <p className="font-semibold mt-2">₹{product.price}</p>
+                <div className="flex-grow flex items-center justify-center">
+                  {product.imageUrl ? (
+                    <Image
+                      className="object-cover rounded-lg"
+                      src={product.imageUrl}
+                      alt={product.name}
+                      width={300}
+                      height={200}
+                    />
+                  ) : (
+                    <p>Image not available</p>
+                  )}
+                </div>
+                <div className="flex-grow mt-4">
+                  <h2 className="text-lg font-medium">{product.name}</h2>
+                  <p className="text-sm text-gray-500">{product.description}</p>
+                </div>
+                <div className="mt-2">
+                  <p className="font-semibold">₹{product.price}</p>
+                </div>
               </div>
             ))}
           </div>
