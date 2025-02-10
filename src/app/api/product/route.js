@@ -9,12 +9,27 @@ export const config = {
   },
 };
 
-// GET Method to fetch all products
-export async function GET() {
+export async function GET(req) {
   try {
     await connectDB();
-    const products = await product.find();
-    return NextResponse.json(products);
+
+    const url = new URL(req.url);
+    const productId = url.searchParams.get('productId');
+
+    if (productId) {
+      // Fetch product by ID
+      const productById = await product.findById(productId);
+
+      if (!productById) {
+        return NextResponse.json({ error: "Product not found" }, { status: 404 });
+      }
+
+      return NextResponse.json(productById);
+    } else {
+      // Fetch all products
+      const products = await product.find();
+      return NextResponse.json(products);
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -28,11 +43,11 @@ export async function POST(req) {
     const body = await req.json();
 
     // Ensure required fields are present
-    const { name, price, description, category, imageUrl } = body;
+    const { name, price, description, imageUrl,stock } = body;
 
-    if (!name || !price || !description || !category || !imageUrl) {
+    if (!name || !price || !description || !imageUrl ||!stock) {
       return NextResponse.json(
-        { error: "All fields (name, price, description, category, imageUrl) are required" },
+        { error: "All fields (name, price, description, imageUrl, stock) are required" },
         { status: 400 }
       );
     }
@@ -43,8 +58,8 @@ export async function POST(req) {
     const newProduct = new product({
       name,
       price,
+      stock,
       description,
-      category,
       imageUrl,
     });
 
@@ -58,10 +73,11 @@ export async function POST(req) {
   }
 }
 
-// PUT Method to update a product by ID
-export async function PUT(req) {
+// PATCH Method to update a product by ID
+export async function PATCH(req) {
   try {
-    const { productId } = req.query; // assuming productId is passed in query params
+    const url = new URL(req.url);
+    const productId = url.searchParams.get('productId');  // assuming productId is passed in query params
     const body = await req.json(); // Assuming the request body contains the update data
     
     await connectDB();
@@ -83,7 +99,8 @@ export async function PUT(req) {
 // DELETE Method to delete a product by ID
 export async function DELETE(req) {
   try {
-    const { productId } = req.query; // assuming productId is passed in query params
+    const url = new URL(req.url);
+    const productId = url.searchParams.get('productId'); 
 
     await connectDB();
     

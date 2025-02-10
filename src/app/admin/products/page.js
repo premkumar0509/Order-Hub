@@ -1,16 +1,16 @@
 "use client";
 import { useState, useEffect } from "react";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import { FaTrash, FaEdit } from "react-icons/fa";
-import './style.css';
-import Modal from './Modal';  // Ensure the import path is correct
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { FaTrash, FaEdit, FaPlus, FaArrowLeft } from "react-icons/fa";
+import "./style.css";
+import Modal from "./modal";
 
 export default function AdminPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState("");
-  const [stock, setStock] = useState("");
+  const [price, setPrice] = useState(0);
+  const [stock, setStock] = useState(0);
   const [imageUrl, setImageUrl] = useState("");
   const [products, setProducts] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
@@ -28,41 +28,51 @@ export default function AdminPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("stock", stock);
-    formData.append("imageUrl", imageUrl);
+    const data = {
+      name: name,
+      description: description,
+      price: parseFloat(price), // Ensuring price is a number
+      stock: parseInt(stock, 10), // Ensuring stock is an integer
+      imageUrl: imageUrl,
+    };
+    
 
     try {
       let response;
       if (editingProductId) {
-        response = await fetch(`/api/product/${editingProductId}`, {
+        response = await fetch(`/api/product/?productId=${editingProductId}`, {
           method: "PATCH",
-          body: formData,
+          body: JSON.stringify(data),
         });
       } else {
         response = await fetch("/api/product", {
           method: "POST",
-          body: formData,
+          body: JSON.stringify(data),
         });
       }
 
       if (response.ok) {
-        toast.success(editingProductId ? "Product updated successfully!" : "Product added successfully!");
+        toast.success(
+          editingProductId
+            ? "Product updated successfully!"
+            : "Product added successfully!"
+        );
         setName("");
         setDescription("");
-        setPrice("");
-        setStock("");
+        setPrice(0);
+        setStock(0);
         setImageUrl("");
         setEditingProductId(null);
         setIsModalOpen(false);
         // Fetch updated Products
-        const updatedProducts = await fetch("/api/product").then((res) => res.json());
+        const updatedProducts = await fetch("/api/product").then((res) =>
+          res.json()
+        );
         setProducts(updatedProducts);
       } else {
-        toast.error("Error adding/updating product: " + await response.text());
+        const errorText = await response.text();
+        console.error("Error adding/updating product:", errorText);
+        toast.error("Error adding/updating product: " + errorText);
       }
     } catch (error) {
       toast.error("Error: " + error.message);
@@ -71,7 +81,7 @@ export default function AdminPage() {
 
   const handleDeleteProduct = async (productId) => {
     try {
-      const response = await fetch(`/api/product/${productId}`, {
+      const response = await fetch(`/api/product/?productId=${productId}`, {
         method: "DELETE",
       });
 
@@ -100,25 +110,42 @@ export default function AdminPage() {
     setEditingProductId(null);
     setName("");
     setDescription("");
-    setPrice("");
-    setStock("");
+    setPrice(0);
+    setStock(0);
     setImageUrl("");
     setIsModalOpen(true);
   };
+  const handleBack = () => {
+    window.history.back();
+  };
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen p-8">
       <ToastContainer />
       <header className="mb-8 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Manage Products</h1>
-        <button className="bg-blue-500 text-white p-2 rounded ml-4" onClick={handleAddProduct}>
-          Add New Product
-        </button>
+        <div className="flex-1">
+          <h1 className="text-4xl font-semibold">Manage Products</h1>
+        </div>
+        <div className="flex">
+          <button
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-2 rounded-md shadow-lg transform hover:scale-105 transition-all duration-300 ml-4 flex items-center"
+            onClick={handleAddProduct}
+          >
+            <FaPlus className="mr-2" /> Add New Product
+          </button>
+          <button
+            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white p-2 rounded-md shadow-lg transform hover:scale-105 transition-all duration-300 ml-4 flex items-center"
+            onClick={handleBack}
+          >
+            <FaArrowLeft className="mr-2" /> Back
+          </button>
+        </div>
       </header>
 
       <div className="flex justify-center mb-8">
@@ -127,14 +154,17 @@ export default function AdminPage() {
           placeholder="Search products..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-2 border rounded text-black transform transition-transform duration-300 ease-in-out hover:scale-105 hover:z-10"
+          className="w-full p-2 border rounded text-black transform transition-transform duration-300 hover:scale-75 hover:z-10 focus:outline-none focus:border-blue-500"
         />
       </div>
 
       <div className="mt-10">
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
           {filteredProducts.map((product) => (
-            <li key={product._id} className="border p-4 rounded relative transform transition-transform duration-300 ease-in-out hover:scale-105 hover:z-10 overflow-hidden">
+            <li
+              key={product._id}
+              className="border p-4 rounded relative transform transition-transform duration-300 ease-in-out hover:scale-105 hover:z-10 overflow-hidden"
+            >
               <div className="flex items-center justify-center space-x-4 absolute top-0 right-2 bottom-0">
                 <FaEdit
                   onClick={() => handleEditProduct(product)}
@@ -195,11 +225,7 @@ export default function AdminPage() {
             required
           />
           {editingProductId && (
-            <input
-              type="hidden"
-              value={editingProductId}
-              className="hidden"
-            />
+            <input type="hidden" value={editingProductId} className="hidden" />
           )}
           <input
             type="text"

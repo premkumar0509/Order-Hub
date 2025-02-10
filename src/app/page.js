@@ -66,7 +66,7 @@ export default function Home() {
 
   return (
     <div className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
-      <div className="min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <div className="min-h-screen p-4 pb-20 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <div className="flex justify-between items-center">
           <h1 className="text-4xl font-semibold">Order Hub</h1>
           <div className="flex justify-end items-center space-x-4">
@@ -85,7 +85,7 @@ export default function Home() {
             </button>
           </div>
         </div>
-
+  
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
             <p className="text-xl font-semibold">Loading products...</p>
@@ -112,11 +112,9 @@ export default function Home() {
                     <p>Image not available</p>
                   )}
                 </div>
-                <div className="flex-grow mt-4">
+                <div className="mt-2">
                   <h2 className="text-lg font-medium">{product.name}</h2>
                   <p className="text-sm text-gray-500">{product.description}</p>
-                </div>
-                <div className="mt-2">
                   <p className="font-semibold">₹{product.price}</p>
                 </div>
               </div>
@@ -125,5 +123,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  );
+  );  
 }
