@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { SunIcon, MoonIcon } from "@heroicons/react/solid"; // Import icons
+import { SunIcon, MoonIcon } from "@heroicons/react/solid"; // Import icons 
 
 export default function Home() {
   const [products, setProducts] = useState([]);
