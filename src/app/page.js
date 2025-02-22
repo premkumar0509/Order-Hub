@@ -1,13 +1,13 @@
 "use client";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { SunIcon, MoonIcon } from "@heroicons/react/solid"; // Import icons 
+
 
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // Track errors
-  const [isDarkMode, setIsDarkMode] = useState(false); // Track theme
+
   const [searchTerm, setSearchTerm] = useState(""); // Track search input
 
   useEffect(() => {
@@ -39,36 +39,24 @@ export default function Home() {
     fetchProducts();
   }, []);
 
-  // Function to toggle theme
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  // Apply dark mode class to body
-  useEffect(() => {
-    if (isDarkMode) {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [isDarkMode]);
-
   // Function to handle search input change
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   // Filter products based on search input
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
+    <div className="min-h-screen bg-white text-black">
+          <br></br>
+          <br></br>
       <div className="min-h-screen p-4 pb-20 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-semibold">Order Hub</h1>
+        <h1 className="text-xl font-bold">Products</h1>
           <div className="flex justify-end items-center space-x-4">
             <input
               type="text"
@@ -77,15 +65,9 @@ export default function Home() {
               placeholder="Search products..."
               className="p-2 border rounded-md"
             />
-            <button
-              onClick={toggleTheme}
-              className="p-2 bg-gray-200 rounded-full dark:bg-gray-800"
-            >
-              {isDarkMode ? <SunIcon className="h-6 w-6 text-yellow-500" /> : <MoonIcon className="h-6 w-6 text-blue-500" />}
-            </button>
           </div>
         </div>
-  
+
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
             <p className="text-xl font-semibold">Loading products...</p>
@@ -123,5 +105,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  );  
+  );
 }

@@ -1,105 +1,151 @@
 "use client";
+import { useState, useEffect } from "react";
+import { FaFacebookF, FaGoogle, FaLinkedinIn } from "react-icons/fa";
+import { toast } from "react-toastify"; // assuming you're using react-toastify for notifications
+import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../hooks/useAuth";
 
-import { useState } from 'react';
+export default function Auth() {
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const user = useAuth();
 
-export default function Login() {
-  const [isLogin, setIsLogin] = useState(true); // Track whether it's login or signup
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/"; // Redirect logged-in users to home
+    }
+  }, [user]);
 
-  const handleSubmit = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Handle form submission here (e.g., API call)
-    console.log("Form submitted", isLogin ? "Login" : "Signup");
 
-    // Example using fetch (replace with your actual API endpoint)
-    const formData = new FormData(e.target);
-    const data = Object.fromEntries(formData.entries());
+    const data = {
+      email: email,
+      password: password,
+    };
 
-    fetch(isLogin ? '/api/login' : '/api/signup', {  // Adjust API routes
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-    .then(response => response.json())
-    .then(result => {
-      console.log('Success:', result);
-      if (isLogin) {  // Assuming the response has a success flag
-        window.location.href = '/';  // Redirect to home page
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        toast.success("Signed in successfully!");
+        window.location.href = "/";
+      } else {
+        const errorText = await response.text();
+        // console.error("Error login:", errorText);
+        toast.error("Error login: " + errorText);
       }
-      // Handle successful login/signup (e.g., redirect, update state)
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Handle errors (e.g., display error message)
-    });
-
+    } catch (error) {
+      toast.error("Error: " + error.message);
+    }
   };
 
   return (
-    <div className="p-8 flex flex-col items-center min-h-screen justify-center bg-gray-100"> {/* Added styling */}
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"> {/* Card container */}
-        <h1 className="text-3xl font-semibold text-center mb-6">
-          {isLogin ? "Login" : "Signup"}
-        </h1>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-            
-                      {!isLogin && ( // Conditionally render additional fields for signup
-                        <div>
-                          <label htmlFor="name" className="block text-gray-700 font-medium">Name</label>
-                          <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Enter your name"
-                            required
-                          />
-                        </div>
-                      )}
-          <div>
-            <label htmlFor="email" className="block text-gray-700 font-medium">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="password" className="block text-gray-700 font-medium">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-
-
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <div
+        className={`relative w-[768px] max-w-full min-h-[480px] bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-500 ${
+          isSignUp ? "scale-105" : ""
+        }`}
+      >
+        {/* Sign Up Form */}
+        <div
+          className={`absolute top-0 left-0 w-1/2 h-full flex flex-col items-center justify-center p-8 transition-opacity duration-500 ${
+            isSignUp ? "opacity-100 z-10" : "opacity-0 -z-10"
+          }`}
+        >
+          <h1 className="text-2xl font-bold">Create Account</h1>
+          <input
+            type="text"
+            placeholder="Name"
+            className="mt-3 p-2 w-full border rounded"
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            className="mt-3 p-2 w-full border rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="mt-3 p-2 w-full border rounded"
+          />
           <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300"
+            className="mt-5 px-6 py-2 bg-red-500 text-white rounded"
+            onClick={() => alert("Sign Up clicked!")}
           >
-            {isLogin ? "Login" : "Signup"}
+            Sign Up
           </button>
+        </div>
 
-          <p className="text-center text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-blue-500 hover:underline ml-1"
-            >
-              {isLogin ? "Signup" : "Login"}
-            </button>
-          </p>
-        </form>
+        {/* Sign In Form */}
+        <div
+          className={`absolute top-0 left-0 w-1/2 h-full flex flex-col items-center justify-center p-8 transition-opacity duration-500 ${
+            isSignUp ? "opacity-0 -z-10" : "opacity-100 z-10"
+          }`}
+        >
+          <h1 className="text-2xl font-bold">Sign In</h1>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="mt-3 p-2 w-full border rounded"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="mt-3 p-2 w-full border rounded"
+          />
+          <a href="#" className="mt-2 text-sm text-blue-500">
+            Forgot your password?
+          </a>
+          <button
+            className="mt-5 px-6 py-2 bg-red-500 text-white rounded"
+            onClick={handleLogin}
+          >
+            Sign In
+          </button>
+        </div>
+
+        {/* Overlay Container */}
+        <div className="absolute top-0 left-1/2 w-1/2 h-full bg-gradient-to-r from-red-500 to-pink-500 text-white flex flex-col items-center justify-center transition-transform duration-500">
+          {isSignUp ? (
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Already signed up?</h1>
+              <p className="mt-2 text-sm">
+                Log in to manage your orders effortlessly!
+              </p>
+              <button
+                className="mt-4 px-6 py-2 border border-white rounded"
+                onClick={() => setIsSignUp(false)}
+              >
+                Sign In
+              </button>
+            </div>
+          ) : (
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Create an Account</h1>
+              <p className="mt-2 text-sm">
+                Join Order Hub! Simplify Your Ordering Process
+              </p>
+              <button
+                className="mt-4 px-6 py-2 border border-white rounded"
+                onClick={() => setIsSignUp(true)}
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

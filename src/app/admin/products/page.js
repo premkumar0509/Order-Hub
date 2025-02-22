@@ -115,6 +115,7 @@ export default function AdminPage() {
     setImageUrl("");
     setIsModalOpen(true);
   };
+  
   const handleBack = () => {
     window.history.back();
   };
