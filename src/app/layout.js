@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ToastContainer } from "react-toastify";
 import favicon from "../../public/favicon/favicon.ico";
 import Navbar from "./components/navbar";
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
        <Navbar />
+       <ToastContainer position="top-right" autoClose={3000} />
         {children}
       </body>
     </html>

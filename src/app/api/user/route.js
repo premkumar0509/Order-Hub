@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/db";
 import User from "@/models/user";
+import bcrypt from "bcryptjs";
 
 // Disable Next.js body parser to handle file uploads
 export const config = {
@@ -8,12 +9,14 @@ export const config = {
     bodyParser: false,
   },
 };
+
+// GET Method - Fetch users or a specific user by ID
 export async function GET(req) {
   try {
     await connectDB();
 
     const url = new URL(req.url);
-    const userId = url.searchParams.get('userId');
+    const userId = url.searchParams.get("userId");
 
     if (userId) {
       // Fetch user by ID
@@ -35,14 +38,19 @@ export async function GET(req) {
   }
 }
 
-// PUT Method to update a user by ID
+// PATCH Method - Update user details
 export async function PATCH(req) {
   try {
     const url = new URL(req.url);
-    const userId = url.searchParams.get('userId'); // assuming userId is passed in query params
-    const body = await req.json(); // Assuming the request body contains the update data
-    
+    const userId = url.searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
+
+    const body = await req.json();
     await connectDB();
+
     const updatedUser = await User.findByIdAndUpdate(userId, body, { new: true });
 
     if (!updatedUser) {
@@ -56,11 +64,15 @@ export async function PATCH(req) {
   }
 }
 
-// DELETE Method to delete a user by ID
+// DELETE Method - Delete user by ID
 export async function DELETE(req) {
   try {
     const url = new URL(req.url);
-    const userId = url.searchParams.get('userId');
+    const userId = url.searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    }
 
     await connectDB();
     const deletedUser = await User.findByIdAndDelete(userId);
@@ -76,36 +88,41 @@ export async function DELETE(req) {
   }
 }
 
-// POST Method to create a new user
+// POST Method - Create a new user
 export async function POST(req) {
   try {
-    // Parse incoming data from the request body
     const body = await req.json();
+    const { username, password, email, name, phone, dateOfBirth, profilePic, isAdmin = false } = body;
 
-    // Ensure required fields are present
-    const { username, password, email, isAdmin = false } = body;
-
-    if (!username || !password || !email) {
+    if (!username || !password || !email || !name) {
       return NextResponse.json(
-        { error: "Username, email, and password are required" },
+        { error: "Username, name, email, and password are required" },
         { status: 400 }
       );
     }
 
     await connectDB();
 
-    // Create a new user
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+    }
+
+    // Create new user
     const newUser = new User({
       username,
-      password, // You should ideally hash the password before saving
+      password, // You can hash the password before saving later
       email,
+      name,
+      phone,
+      dateOfBirth,
+      profilePic,
       isAdmin,
     });
 
-    // Save the user to the database
     const savedUser = await newUser.save();
-
-    return NextResponse.json(savedUser, { status: 201 }); // Return the created user
+    return NextResponse.json(savedUser, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
