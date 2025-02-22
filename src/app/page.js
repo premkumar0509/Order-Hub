@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,25 +51,27 @@ export default function Home() {
   );
   return (
     <div className="min-h-screen bg-white text-black">
-          <br></br>
-          <br></br>
+      <br></br>
+      <br></br>
       <div className="min-h-screen p-4 pb-20 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)]">
         <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">Products</h1>
-          <div className="flex justify-end items-center space-x-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              placeholder="Search products..."
-              className="p-2 border rounded-md"
-            />
-          </div>
+        {!loading && <h1 className="text-xl font-bold">Products</h1>}
+          {!loading && (
+            <div className="flex justify-end items-center space-x-4">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                placeholder="Search products..."
+                className="p-2 border rounded-md"
+              />
+            </div>
+          )}
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center min-h-screen">
-            <p className="text-xl font-semibold">Loading products...</p>
+            <p className="text-xl font-semibold">Loading...</p>
           </div>
         ) : error ? (
           <p className="text-red-500">{error}</p> // Display error message
