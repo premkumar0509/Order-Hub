@@ -129,6 +129,8 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen p-8">
       <ToastContainer />
+      <br></br>
+      <br></br>
       <header className="mb-8 flex items-center justify-between">
         <div className="flex-1">
           <h1 className="text-4xl font-semibold">Manage Products</h1>
